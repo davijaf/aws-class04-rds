@@ -1,5 +1,12 @@
 # class04_task01 — API RDS (Spring Boot + MySQL na AWS)
 
+[![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-8.4-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+![AWS](https://img.shields.io/badge/AWS-RDS%20%7C%20EC2-FF9900?logo=amazonaws&logoColor=white)
+![Maven](https://img.shields.io/badge/build-Maven-C71A36?logo=apachemaven&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Lab do treinamento **Assurance — Java → AWS**. API REST em **Spring Boot 3 / Java 21** que faz CRUD de `usuario` num **RDS MySQL**, implantada em **EC2**.
 
 > Derivado de `RobertoMVB/aws-class` (branch `develop`), **isolado para a parte de RDS** — removidos os módulos de S3, DynamoDB, SQS e SNS, mantendo apenas RDS + health.
@@ -120,6 +127,9 @@ ssh -i <chave.pem> ubuntu@<EC2-IP> 'sudo systemctl restart class04-task01'
 - [`curls-crud-ec2.md`](curls-crud-ec2.md) — testes da API via curl
 - [`mysql-cli.md`](mysql-cli.md) — acessar o MySQL no terminal
 - [`class04_task01.postman_collection.json`](class04_task01.postman_collection.json) — collection Postman (importável / `newman`)
+
+## Licença
+Distribuído sob a licença **MIT** — veja [`LICENSE`](LICENSE). © 2026 Davi Jose Araujo Filho
 
 ---
 > ⚠️ **Lab AWS:** ao encerrar, reverter os recursos (RDS *Not publicly accessible*, remover regras de Security Group, parar instâncias) para não gerar custo/risco.
