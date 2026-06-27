@@ -1,0 +1,171 @@
+{
+  "info": {
+    "_postman_id": "c0a4d1e2-04f0-4a11-9b2c-aws0class04t01",
+    "name": "class04_task01 — CRUD Usuários (EC2)",
+    "description": "CRUD da API Spring Boot (class3) na EC2 ec2-class01, conectada ao RDS database-1 (schema aws_class, tabela usuario).\n\nBase: {{baseUrl}} (ex.: http://localhost:8080 ou o IP da sua EC2)\n\nFluxo sugerido (Collection Runner): 'Criar usuário' captura o id em {{usuarioId}}, usado por 'Buscar por id' e 'Deletar'.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "usuarioId", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health (controller custom)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"status UP\", () => pm.expect(pm.response.json().status).to.eql(\"UP\"));"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          },
+          "response": [
+            {
+              "name": "200 UP",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } },
+              "status": "OK", "code": 200, "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\"status\":\"UP\",\"timestamp\":\"1782517088956\"}"
+            }
+          ]
+        },
+        {
+          "name": "Health (Spring Actuator)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] }
+          },
+          "response": [
+            {
+              "name": "200 UP",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"] } },
+              "status": "OK", "code": 200, "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\"status\":\"UP\"}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuários (CRUD)",
+      "item": [
+        {
+          "name": "Listar todos",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"retorna array\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] }
+          },
+          "response": [
+            {
+              "name": "200 lista",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] } },
+              "status": "OK", "code": 200, "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\"id\":1,\"nome\":\"teste01\",\"email\":\"teste01@example.com\"},\n  {\"id\":2,\"nome\":\"teste02\",\"email\":\"teste02@example.com\"},\n  {\"id\":3,\"nome\":\"teste03\",\"email\":\"teste03@example.com\"}\n]"
+            }
+          ]
+        },
+        {
+          "name": "Criar usuário (POST)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));",
+              "const u = pm.response.json();",
+              "pm.test(\"tem id numerico\", () => pm.expect(u.id).to.be.a(\"number\"));",
+              "pm.collectionVariables.set(\"usuarioId\", u.id);",
+              "console.log(\"usuarioId capturado =\", u.id);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"teste04\",\n  \"email\": \"teste04@example.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] }
+          },
+          "response": [
+            {
+              "name": "200 criado",
+              "originalRequest": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"nome\":\"teste04\",\"email\":\"teste04@example.com\"}" }, "url": { "raw": "{{baseUrl}}/usuarios", "host": ["{{baseUrl}}"], "path": ["usuarios"] } },
+              "status": "OK", "code": 200, "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\"id\":4,\"nome\":\"teste04\",\"email\":\"teste04@example.com\"}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar por id",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test(\"status 200\", () => pm.response.to.have.status(200));"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}", "host": ["{{baseUrl}}"], "path": ["usuarios", "{{usuarioId}}"] }
+          },
+          "response": [
+            {
+              "name": "200 por id",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/usuarios/1", "host": ["{{baseUrl}}"], "path": ["usuarios", "1"] } },
+              "status": "OK", "code": 200, "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\"id\":1,\"nome\":\"teste01\",\"email\":\"teste01@example.com\"}"
+            }
+          ]
+        },
+        {
+          "name": "Deletar por id",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test(\"status 204\", () => pm.response.to.have.status(204));"
+            ] } }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/usuarios/{{usuarioId}}", "host": ["{{baseUrl}}"], "path": ["usuarios", "{{usuarioId}}"] }
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "originalRequest": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/usuarios/4", "host": ["{{baseUrl}}"], "path": ["usuarios", "4"] } },
+              "status": "No Content", "code": 204, "_postman_previewlanguage": "text",
+              "header": [], "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Buscar inexistente (404)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test(\"status 404\", () => pm.response.to.have.status(404));"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/usuarios/999", "host": ["{{baseUrl}}"], "path": ["usuarios", "999"] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
