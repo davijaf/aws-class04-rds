@@ -45,18 +45,65 @@ cp .env.example .env    # e preencha DB_PASSWORD
 A app resolve `${DB_PASSWORD}` do ambiente. Datasource via variáveis:
 `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `DB_PASSWORD`.
 
-## Rodar local
+## Como rodar
+
+### Pré-requisitos
+- **Java 21** (`java -version`)
+- **Maven** — ou use o wrapper `./mvnw` (não precisa instalar)
+- Um **MySQL**: local via Docker (passo 1A) **ou** um **RDS** (passo 1B)
+
+### 1A — Banco local com Docker (mais rápido pra testar)
 ```bash
-set -a; source .env; set +a
-export SPRING_DATASOURCE_URL="jdbc:mysql://<RDS-ENDPOINT>:3306/aws_class?sslMode=REQUIRED"
-export SPRING_DATASOURCE_USERNAME="admin"
-mvn spring-boot:run
-curl http://localhost:8080/usuarios
+docker run -d --name mysql-class04 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=aws_class \
+  -p 3306:3306 mysql:8.4
 ```
 
-## Build
+### 1B — Banco no AWS RDS
+Instância MySQL no RDS *publicly accessible*, com a porta **3306** liberada pro seu IP no Security Group. Schema: `aws_class`.
+
+### 2 — Configurar segredos (`.env`)
 ```bash
-mvn clean package -DskipTests   # -> target/class3-0.0.1-SNAPSHOT.jar
+cp .env.example .env
+```
+Edite o `.env` conforme o seu banco:
+```bash
+# Docker local:
+SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/aws_class?sslMode=DISABLED&allowPublicKeyRetrieval=true
+SPRING_DATASOURCE_USERNAME=root
+DB_PASSWORD=root
+
+# RDS:
+SPRING_DATASOURCE_URL=jdbc:mysql://<SEU-ENDPOINT-RDS>:3306/aws_class?sslMode=REQUIRED
+SPRING_DATASOURCE_USERNAME=admin
+DB_PASSWORD=<sua-senha>
+```
+> O `.env` é **gitignored** — nunca vai pro repositório.
+
+### 3 — Subir a aplicação
+```bash
+set -a; source .env; set +a     # carrega as variaveis no ambiente
+./mvnw spring-boot:run          # (ou: mvn spring-boot:run)
+```
+Sobe na **porta 8080**. A tabela `usuario` é criada automaticamente (`spring.jpa.hibernate.ddl-auto=update`); pra criar manual, rode [`db/create_usuario.sql`](db/create_usuario.sql).
+
+### 4 — Testar
+```bash
+curl http://localhost:8080/health
+
+curl -X POST http://localhost:8080/usuarios \
+  -H 'Content-Type: application/json' \
+  -d '{"nome":"teste01","email":"teste01@example.com"}'
+
+curl http://localhost:8080/usuarios
+```
+Mais exemplos em [`curls-crud-ec2.md`](curls-crud-ec2.md) e na [collection Postman](class04_task01.postman_collection.json).
+
+### Build (jar executável)
+```bash
+./mvnw clean package -DskipTests          # -> target/class3-0.0.1-SNAPSHOT.jar
+java -jar target/class3-0.0.1-SNAPSHOT.jar
 ```
 
 ## Deploy na EC2
